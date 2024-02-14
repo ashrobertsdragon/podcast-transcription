@@ -67,7 +67,7 @@ def whisper_api(base_name: str, extension: str):
         transcript = client.audio.transcriptions.create(
           model="whisper-1", file=audio_file
         )
-        print(f"Segment {i+1} of {len(os.listdir(segment_folder))} transcribed")
+        print(f"Segment {i+1} of {len(os.listdir(segment_folder))} transcribed for {base_name}")
     except Exception as e:
       print(e)
     if transcript:
@@ -77,11 +77,13 @@ def whisper_api(base_name: str, extension: str):
 
 def summarize_transcript(base_name: str):
   base_folder, segment_folder = define_folders(base_name, folder_type = "transcripts")
-  for text_file in os.listdir(segment_folder):
+  for i, text_file in enumerate(os.listdir(segment_folder)):
     if not text_file.endswith(".txt"):
       continue
     summary = ""
     text_path = os.path.join(segment_folder, text_file)
+    print(f"Summarizing segment {i+1} of {len(os.listdir(segment_folder))} of {base_name}")
+    
     with open(text_path, "r") as f:
       text = f.read()
     response = None
