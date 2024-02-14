@@ -16,22 +16,19 @@ def define_folders(base_name: str, folder_type: str) -> tuple[str, str]:
   return base_folder, segment_folder
 
 def count_files(folder_path: str) -> int:
-
   if not os.path.isdir(folder_path):
     print(f"The path {folder_path} is not a valid directory.")
     return 0
   files = [entry for entry in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, entry))]
   file_count = len(files)
-
   return file_count
 
 
 def split_file(file_path: str) -> tuple[str, str]:
-
   ffmpeg_path = os.getenv("ffmpeg_path")
   _, filename = os.path.split(file_path)
   base_name, extension = os.path.splitext(filename)
-  _, output_folder = define_folders(filename, "audio")
+  _, output_folder = define_folders(base_name, "audio")
   output_file = os.path.join(output_folder, f"{base_name}%03d{extension}")
 
   ffmpeg_command = [
