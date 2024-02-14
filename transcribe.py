@@ -15,6 +15,17 @@ def define_folders(base_name: str, folder_type: str) -> tuple[str, str]:
   os.makedirs(segment_folder, exist_ok=True)
   return base_folder, segment_folder
 
+def count_files(folder_path: str) -> int:
+
+  if not os.path.isdir(folder_path):
+    print(f"The path {folder_path} is not a valid directory.")
+    return 0
+  files = [entry for entry in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, entry))]
+  file_count = len(files)
+
+  return file_count
+
+
 def split_file(file_path: str) -> tuple[str, str]:
 
   ffmpeg_path = os.getenv("ffmpeg_path")
@@ -44,6 +55,10 @@ def split_file(file_path: str) -> tuple[str, str]:
 
 def whisper_api(base_name: str, extension: str):
   base_folder, segment_folder = define_folders(base_name, folder_type = "audio")
+  output_folder = os.path.join(base_folder, "transcripts")
+  os.makedirs(output_folder, exist_ok=True)
+  if count_files(segment_folder) == count_files(output_folder):
+    return
   for i, segment in enumerate(os.listdir(segment_folder)):
     if not segment.endswith(extension):
       continue
@@ -59,8 +74,6 @@ def whisper_api(base_name: str, extension: str):
     except Exception as e:
       print(e)
     if transcript:
-      output_folder = os.path.join(base_folder, "transcripts")
-      os.makedirs(output_folder, exist_ok=True)
       output_path = os.path.join(output_folder, f"{segment}.txt")
       with open(output_path, "w") as f:
         f.write(transcript.text)
@@ -142,7 +155,6 @@ def process_files():
       base_name, extension = split_file(file)
       whisper_api(base_name, extension)
       summarize_transcript(base_name)
-
   else:
     base_name, extension = split_file(file_path)
     whisper_api(base_name, extension)
